@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: laravel-imagen
+    container_name: laravel-container
+    ports:
+      - "8000:8000"
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    environment:
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=laravel_react_db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=secret
+    depends_on:
+      - db
+      - redis
+    
+  redis:
+    image: redis:alpine
+    container_name: redis-container
+    command: redis-server --appendonly yes --requirepass "secret"
+    ports:
+      - 6379:6379
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: react-imagen
+    container_name: react-container
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/app:/app
+
+  db:
+    image: postgres:latest
+    container_name: postgres-container
+    environment:
+      - POSTGRES_DB=laravel_react_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+    ports:
+      - 5432:5432
+  
+volumes:
