@@ -11,7 +11,7 @@ Route::get('/hoteles/{id}',[HotelController::class, 'show'] );
 Route::post('/hoteles',[HotelController::class, 'store']);
 Route::put('/hoteles/{id}',[HotelController::class, 'update']);
 Route::patch('/hoteles/{id}',[HotelController::class, 'updatePartial']);
-Route::delete('/hoteles/{id}', [HotelController::class, 'update']);
+Route::delete('/hoteles/{id}', [HotelController::class, 'destroy']);
 
 
 Route::get('/tipo_habitaciones_acomodaciones', [TipoHabitacionesAcomodacionesController::class, 'index']);

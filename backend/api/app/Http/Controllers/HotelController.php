@@ -23,8 +23,7 @@ class HotelController extends BaseCrudController
         ],
         'cant_habitaciones' => [
             'required',
-            'integer',
-            'max:42'
+            'integer'
         ]
     ];
 

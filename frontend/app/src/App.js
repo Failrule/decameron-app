@@ -10,6 +10,8 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<ShowHotels />} />
+          <Route path="/create" element={<CreateHotels />} />
+          <Route path="/edit/:id" element={<EditHotels />} />
         </Routes>
       </div>
     </BrowserRouter>

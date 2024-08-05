@@ -22,7 +22,7 @@ export const ShowHotels = () => {
 
   const deleteHotel = async (id) => {
     try {
-      await axios.delete(`${endpoint}/hotel/${id}`);
+      await axios.delete(`${endpoint}/hoteles/${id}`);
       getAllHotels();
     } catch (error) {
       console.error('Error deleting hotel:', error);
@@ -30,9 +30,10 @@ export const ShowHotels = () => {
   };
 
   return (
-    <div>
-      <div className='d-grid gap-2'>
-        <Link to="/create" className='btn btn-success btn-lg m-2 text-white'>Crear</Link>
+    <div className='container mt-5'>
+      <div className='d-flex justify-content-between align-items-center mb-3'>
+        <h2>Hoteles</h2>
+        <Link to="/create" className='btn btn-success btn-lg text-white'>Crear</Link>
       </div>
       <table className='table table-striped'>
         <thead className='bg-primary text-white'>
@@ -53,7 +54,7 @@ export const ShowHotels = () => {
               <td className='text-center'>{hotel.cant_habitaciones}</td>
               <td className='text-center'>
                 <div className='d-flex justify-content-center'>
-                  <Link to={`/ver/${hotel.id}`} className='btn btn-success m-1'>Ver</Link>
+                  <Link to={`/rooms/${hotel.id}`} className='btn btn-success m-1'>Ver</Link>
                   <Link to={`/edit/${hotel.id}`} className='btn btn-warning m-1'>Editar</Link>
                   <button onClick={() => deleteHotel(hotel.id)} className='btn btn-danger m-1'>Eliminar</button>
                 </div>
