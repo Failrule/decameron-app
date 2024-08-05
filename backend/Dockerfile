@@ -2,7 +2,7 @@
 FROM php:8.1
 
 # Instalar dependencias del sistema
-RUN apt-get update -y && \
+RUN apt-get update -y && apt-get upgrade -y \
     apt-get install -y unzip libpq-dev libcurl4-gnutls-dev && \
     docker-php-ext-install pdo pdo_pgsql bcmath
 
