@@ -9,6 +9,8 @@ use Illuminate\Http\JsonResponse;
 abstract class BaseCrudController extends Controller
 {
     protected $modelClass;  // Clase del modelo a usar
+    protected $parentItem; // Clase de items del modelo
+    protected $foreignKey;
     protected $rules = [];  // Reglas de validación
     protected $rulesPatch = []; // Reglas de validación para actualización parcial
     protected $customMessages = []; // Mensajes de validación personalizados
@@ -66,6 +68,24 @@ abstract class BaseCrudController extends Controller
 
         return response()->json([
             'item' => $item,
+            'status' => 200
+        ], 200);
+    }
+
+    public function showBelongs(int $id): JsonResponse
+    {
+        if (!$this->parentItem) {
+            return response()->json([
+                'message' => class_basename($this->parentItem->table) . ' no encontrado',
+                'status' => 404
+            ], 404);
+        }
+
+        $childItems = $this->modelClass::where($this->foreignKey, $id)->get();
+
+        return response()->json([
+            'parentItem' => $this->parentItem,
+            'childItems' => $childItems,
             'status' => 200
         ], 200);
     }

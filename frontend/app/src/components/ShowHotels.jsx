@@ -54,7 +54,7 @@ export const ShowHotels = () => {
               <td className='text-center'>{hotel.cant_habitaciones}</td>
               <td className='text-center'>
                 <div className='d-flex justify-content-center'>
-                  <Link to={`/rooms/${hotel.id}`} className='btn btn-success m-1'>Ver</Link>
+                  <Link to={`/typesacc/${hotel.id}`} className='btn btn-success m-1'>Ver</Link>
                   <Link to={`/edit/${hotel.id}`} className='btn btn-warning m-1'>Editar</Link>
                   <button onClick={() => deleteHotel(hotel.id)} className='btn btn-danger m-1'>Eliminar</button>
                 </div>

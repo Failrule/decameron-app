@@ -26,7 +26,7 @@ export const CreateHotels = () => {
     };
 
     try {
-      await axios.patch(endpoint, data);
+      await axios.post(endpoint, data);
       navigate('/');
     } catch (error) {
       if (error.response && error.response.status === 422) {

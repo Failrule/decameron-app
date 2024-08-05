@@ -41,9 +41,15 @@ class TipoHabitacionesAcomodacionesController extends BaseCrudController
         'cantidad.min' => 'La cantidad de habitaciones debe ser al menos 1.',
     ];
 
-    public function store(Request $request): JsonResponse
+    public function storeTypeAcc(Request $request, int $id): JsonResponse
     {
         try {
+            if ($request->has('cantidad') && $this->checkMaxQtyHotelRooms($id, $request->cantidad, 0)) {
+                return response()->json([
+                    'message' => 'El total de las cantidades de tipo de habitación supera el máximo de habitaciones del hotel.',
+                    'status' => 400
+                ], 400);
+            }
             return parent::store($request);
         } catch (QueryException $e) {
             if ($e->getCode() === '23505') {
@@ -62,9 +68,9 @@ class TipoHabitacionesAcomodacionesController extends BaseCrudController
     public function updatePartial(Request $request, int $id): JsonResponse
     {
         $model = $this->modelClass::find($id);
-        $this->fields = (new TipoHabitacionesAcomodaciones)->getFillable();
-        
-        if ($request->has('cantidad') && $this->checkMaxQtyHotelRooms($model->hotel_id, $request->cantidad, $model->cantidad, $id)) {
+        //$this->fields = (new TipoHabitacionesAcomodaciones)->getFillable();
+        $cantidadActual = TipoHabitacionesAcomodaciones::where('id', $id)->value('cantidad');
+        if ($request->has('cantidad') && $this->checkMaxQtyHotelRooms($model->hotel_id, $request->cantidad, $cantidadActual)) {
             return response()->json([
                 'message' => 'El total de las cantidades de tipo de habitación supera el máximo de habitaciones del hotel.',
                 'status' => 400
@@ -85,8 +91,15 @@ class TipoHabitacionesAcomodacionesController extends BaseCrudController
                 'status' => 500
             ], 500);
         }
-
     }
+
+    public function showBelongs(int $id): JsonResponse
+    {
+        $this->parentItem = Hotel::find($id);
+        $this->foreignKey = 'hotel_id';
+        return parent::showBelongs($id);
+    }
+
 
     /**
      * Verifica si el total de las cantidades de tipo de habitación supera el máximo de habitaciones del hotel.
@@ -95,13 +108,11 @@ class TipoHabitacionesAcomodacionesController extends BaseCrudController
      * @param int $cantidadNueva
      * @return bool
      */
-    public function checkMaxQtyHotelRooms(int $hotelId, int $cantidadNueva,int $cantidadActual,int $id): bool
+    public function checkMaxQtyHotelRooms(int $hotelId, int $cantidadNueva,int $cantidadActual): bool
     {
         $hotel = Hotel::find($hotelId);
         $totalCantidad = TipoHabitacionesAcomodaciones::where('hotel_id', $hotelId)->sum('cantidad');
-        $cantidadActual = TipoHabitacionesAcomodaciones::where('id', $id)->value('cantidad');
         $cantidadFutura = ($totalCantidad - $cantidadActual) + $cantidadNueva;
-
         return ($cantidadFutura > $hotel->cant_habitaciones);
     }
 }
