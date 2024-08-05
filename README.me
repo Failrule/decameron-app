@@ -1,9 +1,19 @@
-# Proyecto
+# Proyecto Decameron Hoteles
+
+## Requisitos
+- Equipo unix/like (MacOs, Linux, FreeBSD)
+- docker/docker-compose o podman/podman-compose
+- Puertos 5432, 3000, 8000 libres
 
 ## Instalación
 
 1. Clone el repositorio o descargue el ZIP.
 2. Ingrese a la carpeta del proyecto.
-3. Ejecute `docker-compose up --build` desde una terminal Linux (PC o servidor).
-4. Ingrese a [http://localhost:3000](http://localhost:3000) en su navegador.
+3. Ejecute `docker-compose build`
+4. Ejecute `docker-compose up`
+5. Ingrese a [http://localhost:3000](http://localhost:3000) en su navegador.
+6. Para detener el servicio sin eliminar los datos `docker-compose stop`
+7. Para detener el servicio eliminando los datos `docker-compose down`
+8. Para limpiar el sistema de las imágenes descargadas y los containers creados `docker system prune` (Tenga cuidado esto eliminará todos los containers detenidos y las imágenes no referenciadas)
+
 
