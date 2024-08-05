@@ -9,9 +9,9 @@ services:
     container_name: laravel-container
     ports:
       - "8000:8000"
-    working_dir: /var/www
+    working_dir: /var/www/api
     volumes:
-      - ./backend:/var/www
+      - ./backend/api:/var/www/api
     environment:
       - DB_CONNECTION=pgsql
       - DB_HOST=db

@@ -1,14 +1,20 @@
-# Usa la imagen base de Node.js
-FROM node:latest
+# Utilizar una imagen base de Node
+FROM node:14
 
-# Establece el directorio de trabajo
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Copia el package.json y el package-lock.json
-COPY ./app/package*.json /app
+# Copiar el archivo package.json y package-lock.json
+#COPY package*.json ./
 
-# Instala las dependencias
-RUN npm install
+# Instalar las dependencias de la aplicación
+RUN npm i
 
-# Comando para iniciar la aplicación
+# Copiar el resto de la aplicación
+#COPY . .
+
+# Exponer el puerto
+EXPOSE 3000
+
+# Iniciar la aplicación
 CMD ["npm", "start"]
