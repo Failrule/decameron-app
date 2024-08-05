@@ -3,89 +3,105 @@
 namespace App\Http\Controllers;
 
 use App\Models\TipoHabitacionesAcomodaciones;
+use App\Models\Hotel;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\QueryException;
 
 class TipoHabitacionesAcomodacionesController extends BaseCrudController
 {
-    // Define la clase del modelo
     protected $modelClass = TipoHabitacionesAcomodaciones::class;
 
-    // Define las reglas de validación específicas para el modelo TipoHabitacionesAcomodaciones
-    protected $rules = [];
-    protected $rulesPatch = [];
-
-    // Define los mensajes de validación personalizados
-    protected $customMessages = [
-        'hotel_id.required' => 'El ID del hotel es obligatorio.',
-        'hotel_id.exists' => 'El ID del hotel debe existir en la base de datos.',
-        'tipo.required' => 'El tipo de habitación es obligatorio.',
-        'tipo.string' => 'El tipo de habitación debe ser una cadena de texto.',
-        'tipo.unique' => 'El tipo de habitación ya existe para este hotel.',
-        'acomodacion.required' => 'La acomodación es obligatoria.',
-        'acomodacion.string' => 'La acomodación debe ser una cadena de texto.',
-        'acomodacion.unique' => 'La acomodación ya existe para este hotel.',
-        'cantidad.required' => 'La cantidad es obligatoria.',
-        'cantidad.integer' => 'La cantidad debe ser un número entero.',
-        'cantidad.min' => 'La cantidad debe ser al menos 1.',
+    protected $rules = [
+        'hotel_id' => 'required|exists:hotel,id',
+        'tipo' => 'required|string|max:255',
+        'acomodacion' => 'required|string|max:255',
+        'cantidad' => 'required|integer|min:1',
     ];
 
-    // Define reglas de validación para la creación de un nuevo registro
-    protected function getCreateRules(Request $request): array
-    {
-        return [
-            'hotel_id' => 'required|exists:hotel,id',
-            'tipo' => [
-                'required',
-                'string',
-                Rule::unique('tipo_habitaciones_acomodaciones')
-                    ->where(function ($query) use ($request) {
-                        return $query->where('hotel_id', $request->hotel_id);
-                    })
-            ],
-            'acomodacion' => [
-                'required',
-                'string',
-                Rule::unique('tipo_habitaciones_acomodaciones')
-                    ->where(function ($query) use ($request) {
-                        return $query->where('hotel_id', $request->hotel_id);
-                    })
-            ],
-            'cantidad' => 'required|integer|min:1',
-        ];
-    }
+    protected $rulesPatch = [
+        'hotel_id' => 'sometimes|exists:hotel,id',
+        'tipo' => 'sometimes|string|max:255',
+        'acomodacion' => 'sometimes|string|max:255',
+        'cantidad' => 'sometimes|integer|min:1',
+    ];
 
-    // Método para definir reglas de validación para la actualización parcial de un registro
-    protected function getUpdateRules(Request $request): array
+    protected $customMessages = [
+        'hotel_id.required' => 'El ID del hotel es obligatorio.',
+        'hotel_id.exists' => 'El hotel especificado no existe.',
+        'tipo.required' => 'El tipo de habitación es obligatorio.',
+        'tipo.string' => 'El tipo de habitación debe ser una cadena de texto.',
+        'tipo.max' => 'El tipo de habitación no puede exceder los 255 caracteres.',
+        'acomodacion.required' => 'La acomodación es obligatoria.',
+        'acomodacion.string' => 'La acomodación debe ser una cadena de texto.',
+        'acomodacion.max' => 'La acomodación no puede exceder los 255 caracteres.',
+        'cantidad.required' => 'La cantidad de habitaciones es obligatoria.',
+        'cantidad.integer' => 'La cantidad de habitaciones debe ser un número entero.',
+        'cantidad.min' => 'La cantidad de habitaciones debe ser al menos 1.',
+    ];
+
+    public function store(Request $request): JsonResponse
     {
-        return [
-            'hotel_id' => 'sometimes|exists:hotel,id',
-            'tipo' => [
-                'sometimes',
-                'string',
-                Rule::unique('tipo_habitaciones_acomodaciones')
-                    ->where(function ($query) use ($request) {
-                        return $query->where('hotel_id', $request->hotel_id);
-                    })
-                    ->ignore($request->id) // Ignorar la validación en caso de actualización parcial del mismo registro
-            ],
-            'acomodacion' => [
-                'sometimes',
-                'string',
-                Rule::unique('tipo_habitaciones_acomodaciones')
-                    ->where(function ($query) use ($request) {
-                        return $query->where('hotel_id', $request->hotel_id);
-                    })
-                    ->ignore($request->id) // Ignorar la validación en caso de actualización parcial del mismo registro
-            ],
-            'cantidad' => 'sometimes|integer|min:1',
-        ];
+        try {
+            return parent::store($request);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23505') {
+                return response()->json([
+                    'message' => 'El '. class_basename($this->modelClass) . ' ya está registrados para este hotel',
+                    'status' => 409
+                ], 409);
+            }
+            return response()->json([
+                'message' => 'Error al crear ' . class_basename($this->modelClass),
+                'status' => 500
+            ], 500);
+        }
     }
 
     public function updatePartial(Request $request, int $id): JsonResponse
     {
+        $model = $this->modelClass::find($id);
         $this->fields = (new TipoHabitacionesAcomodaciones)->getFillable();
-        return parent::updatePartial($request, $id);
+        
+        if ($request->has('cantidad') && $this->checkMaxQtyHotelRooms($model->hotel_id, $request->cantidad, $model->cantidad, $id)) {
+            return response()->json([
+                'message' => 'El total de las cantidades de tipo de habitación supera el máximo de habitaciones del hotel.',
+                'status' => 400
+            ], 400);
+        }
+
+        try {
+            return parent::updatePartial($request, $id);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23505') {
+                return response()->json([
+                    'message' => 'El '. class_basename($this->modelClass) . ' ya está registrados para este hotel',
+                    'status' => 409
+                ], 409);
+            }
+            return response()->json([
+                'message' => 'Error al crear ' . class_basename($this->modelClass),
+                'status' => 500
+            ], 500);
+        }
+
+    }
+
+    /**
+     * Verifica si el total de las cantidades de tipo de habitación supera el máximo de habitaciones del hotel.
+     *
+     * @param int $hotelId
+     * @param int $cantidadNueva
+     * @return bool
+     */
+    public function checkMaxQtyHotelRooms(int $hotelId, int $cantidadNueva,int $cantidadActual,int $id): bool
+    {
+        $hotel = Hotel::find($hotelId);
+        $totalCantidad = TipoHabitacionesAcomodaciones::where('hotel_id', $hotelId)->sum('cantidad');
+        $cantidadActual = TipoHabitacionesAcomodaciones::where('id', $id)->value('cantidad');
+        $cantidadFutura = ($totalCantidad - $cantidadActual) + $cantidadNueva;
+
+        return ($cantidadFutura > $hotel->cant_habitaciones);
     }
 }

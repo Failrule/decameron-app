@@ -20,6 +20,7 @@ class CreateTipoHabitacionesAcomodacionesTable extends Migration
             $table->string('acomodacion'); // Columna para la acomodación
             $table->integer('cantidad'); // Columna para la cantidad
             $table->timestamps(); // Columnas para fechas de creación y actualización
+            $table->unique(['hotel_id', 'tipo', 'acomodacion']);
         });
     }
 

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HotelController;
+use App\Http\Controllers\TipoHabitacionesAcomodacionesController;
 
 
 Route::get('/hoteles',[HotelController::class, 'index']);
@@ -12,7 +13,6 @@ Route::put('/hoteles/{id}',[HotelController::class, 'update']);
 Route::patch('/hoteles/{id}',[HotelController::class, 'updatePartial']);
 Route::delete('/hoteles/{id}', [HotelController::class, 'update']);
 
-use App\Http\Controllers\TipoHabitacionesAcomodacionesController;
 
 Route::get('/tipo_habitaciones_acomodaciones', [TipoHabitacionesAcomodacionesController::class, 'index']);
 Route::get('/tipo_habitaciones_acomodaciones/{id}', [TipoHabitacionesAcomodacionesController::class, 'show']);

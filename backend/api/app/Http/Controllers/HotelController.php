@@ -74,7 +74,6 @@ class HotelController extends BaseCrudController
 
     public function updatePartial(Request $request, int $id): JsonResponse
     {
-        //$fields = (new Hotel)->getFillable();
         $this->fields = (new Hotel)->getFillable();
         return parent::updatePartial($request,$id);
     }

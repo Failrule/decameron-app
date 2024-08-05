@@ -70,36 +70,6 @@ abstract class BaseCrudController extends Controller
         ], 200);
     }
 
-    // Actualizar un registro existente
-    public function update(Request $request, int $id): JsonResponse
-    {
-        $item = $this->modelClass::find($id);
-
-        if (!$item) {
-            return response()->json([
-                'message' => 'Registro no encontrado',
-                'status' => 404
-            ], 404);
-        }
-
-        $validator = Validator::make($request->all(), $this->rules, $this->customMessages);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Error validando datos',
-                'errors' => $validator->errors(),
-                'status' => 422
-            ], 422);
-        }
-
-        $item->update($request->all());
-
-        return response()->json([
-            'message' => 'Registro actualizado',
-            'status' => 200
-        ], 200);
-    }
-
     // Eliminar un registro
     public function destroy(int $id): JsonResponse
     {
@@ -132,6 +102,7 @@ abstract class BaseCrudController extends Controller
             ], 404);
         }
 
+        
         // Filtrar las reglas para solo incluir las reglas relevantes para los campos proporcionados
         $rulesPatch = array_filter(
             $this->rulesPatch,
