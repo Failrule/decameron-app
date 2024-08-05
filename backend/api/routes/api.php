@@ -2,20 +2,25 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\hotelController;
+use App\Http\Controllers\HotelController;
 
 
-Route::get('/hoteles',[hotelController::class, 'index']);
+Route::get('/hoteles',[HotelController::class, 'index']);
+Route::get('/hoteles/{id}',[HotelController::class, 'show'] );
+Route::post('/hoteles',[HotelController::class, 'store']);
+Route::put('/hoteles/{id}',[HotelController::class, 'update']);
+Route::patch('/hoteles/{id}',[HotelController::class, 'updatePartial']);
+Route::delete('/hoteles/{id}', [HotelController::class, 'update']);
 
-Route::get('/hoteles/{id}',[hotelController::class, 'show'] );
+use App\Http\Controllers\TipoHabitacionesAcomodacionesController;
 
-Route::post('/hoteles',[hotelController::class, 'store']);
+Route::get('/tipo_habitaciones_acomodaciones', [TipoHabitacionesAcomodacionesController::class, 'index']);
+Route::get('/tipo_habitaciones_acomodaciones/{id}', [TipoHabitacionesAcomodacionesController::class, 'show']);
+Route::post('/tipo_habitaciones_acomodaciones', [TipoHabitacionesAcomodacionesController::class, 'store']);
+Route::put('/tipo_habitaciones_acomodaciones/{id}', [TipoHabitacionesAcomodacionesController::class, 'update']);
+Route::patch('/tipo_habitaciones_acomodaciones/{id}', [TipoHabitacionesAcomodacionesController::class, 'updatePartial']);
+Route::delete('/tipo_habitaciones_acomodaciones/{id}', [TipoHabitacionesAcomodacionesController::class, 'destroy']);
 
-Route::put('/hoteles/{id}',[hotelController::class, 'update']);
-
-Route::patch('/hoteles/{id}',[hotelController::class, 'updatePartial']);
-
-Route::delete('/hoteles/{id}', [hotelController::class, 'update']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

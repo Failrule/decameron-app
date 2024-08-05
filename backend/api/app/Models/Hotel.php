@@ -18,4 +18,9 @@ class Hotel extends Model
         'nit',
         'cant_habitaciones'
     ];
+
+    public function tipoHabitacionesAcomodaciones(): HasMany
+    {
+        return $this->hasMany(tipoHabitacionAcomodacion::class, 'hotel_id', 'id');
+    }
 }
